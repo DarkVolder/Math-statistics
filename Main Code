@@ -1,0 +1,159 @@
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <array>
+#include <map>
+using namespace std;
+int main()
+{
+	setlocale(LC_ALL, "Russian");
+	ifstream fin("C:\\Users\\dark\\Desktop\\Statistics.txt");
+	int N, k, z, v, f, w, choice;
+	float t, r, y, step, sum, sumy, sumx;
+	sumx = sumy = sum = step = w = f = v = y = t = r = z = k = 0;
+	double ispr;
+	double ko = 0;
+	double kz = 0;
+	int sk = 1;
+	array<int, 1653> A;
+	vector<int> B;
+	map<double, double> m;
+	////////////////////////////// Открытие //////////////////////////////
+	if (!fin.good())
+	{
+		cout << "Файл Statistics.txt не найден!" << endl;
+	}
+	else
+	{
+		cout << "Видоизменять ГС? (1 = Да): ";
+		cin >> choice;
+		if (choice == 1)
+		{
+			cout << "Массив будет начат с элемента: ";
+			cin >> v;
+			cout << endl << "Будет использован каждый элемент: ";
+			cin >> f;
+		}
+		else
+		{
+			v = 0;
+			f = 1;
+		}
+		while (fin >> N) { A[k++] = N; }
+		cout << endl << "Искомый массив:" << endl;
+		for (int i = v; i < k; i = i + f)
+		{
+			cout << A[i] << " ";
+			z++;
+			B.push_back(A[i]);
+		}
+		cout << endl << endl << "Всего элементов: " << z << endl;
+		////////////////////////////// Обработкa //////////////////////////////
+
+		////////////////////////////// Х_сред_ген //////////////////////////////
+		for (int i = 0; i < z; i++)
+		{
+			y = y + B[i];
+		}
+		y = y / z;
+		////////////////////////////// D_ген //////////////////////////////
+		for (int i = 0; i < z; i++)
+		{
+			r = r + pow(B[i] - y, 2);
+		}
+		r = r / z;	// D_ген/выб
+		ko = z;
+		ispr = (ko / (ko - 1))*r;	// D_испр
+		////////////////////////////// b_ген //////////////////////////////
+		t = sqrt(r);	// b_ген/Выб
+		kz = sqrt(ispr);	// b_испр
+		////////////////////////////// Вывод значений выборки //////////////////////////////
+		if (choice == 1)
+		{
+			cout << endl << "Среднее выборочное значение: " << y << endl;
+			cout << endl << "Дисперсия выборки: " << r << endl;
+			cout << endl << "Дисперсия исправленная: " << ispr << endl;
+			cout << endl << "Стандартное отклонение выборки: " << t << endl;
+			cout << endl << "Исправленное стандартное отклонение выборки: " << kz << endl;
+		}
+		////////////////////////////// Вывод значений ГС //////////////////////////////
+		else
+		{
+			cout << endl << "Среднее значение генеральной совокупности: " << y << endl;
+			cout << endl << "Дисперсия генеральной совокупности: " << r << endl;
+			cout << endl << "Стандартное отклонение генеральной совокупности: " << t << endl;
+		}
+		////////////////////////////// Точки регрессии //////////////////////////////
+		// Сколько повторений каждого значения
+		// Заполняем счетчик
+		for (auto i : B) ++m[i];
+		// Выводим данные счетчика
+		cout << endl << "Полигон частот:" << endl;
+		cout << "Варианта | Частота | Относительная частота" << endl;
+		for (auto i : m)
+		{
+			cout << i.first << "\t   " << i.second << "\t     " << (i.second) / z << endl;
+			sumy = sumy + i.second;
+		}
+		cout << "Проверка: " << sumy << endl;
+		cout << endl;
+		////////////////////////////// Вариационный ряд //////////////////////////////
+		// Сортировка массива
+		cout << endl << "Отсортированный массив:" << endl;
+		sort(B.begin(), B.end());
+		for (auto i : B) cout << i << " ";
+		cout << endl;
+		////////////////////////////// Запись //////////////////////////////
+		ofstream fout("C:\\Users\\dark\\Desktop\\myfile1.txt");
+		if (!fout)
+		{
+			cout << "Не удается открыть файл!";
+		}
+		else
+		{
+			fout << "Козловский Владимир Юрьевич ВПМ31" << '\n';
+			fout << endl << "Полигон частот:" << endl;
+			fout << "Варианта | Частота | Относительная частота" << endl;
+			for (auto i : m) fout << i.first << "\t   " << i.second << "\t     " << (i.second) / z << endl;
+			fout << endl;
+			cout << endl << "Файл myfile1.txt сохранен на рабочий стол." << endl;
+			cout << endl;
+		}
+		////////////////////////////// Гистограмма //////////////////////////////
+		cout << "Идет процесс построения гистограммы" << '\n' << "На сколько частей разбить гистограмму: ";
+		cin >> w;
+		cout << endl;
+		step = ((*(m.rbegin())).first) / w;
+		fout << "Гистограмма разбита на " << w << " частей" << '\n';
+		fout << "Шаг разбиения гистограммы - каждые: " << step << '\n' << '\n';
+		cout << "Шаг разбиения гистограммы - каждые: " << step << '\n';
+		cout << endl;
+		for (float point = 0; point < 100; point = point + step)
+		{
+			for (auto i : m)
+			{
+				if ((point > i.first) && (i.first >= (point - step)))
+				{
+					sum = sum + i.second;
+					sumx = sumx + i.second;
+				}
+				else
+				{
+					if (sum > 0)
+					{
+						cout << point << "\t" << sum / step << endl;
+						fout << point << "\t" << sum / step << endl;
+						sum = 0;
+					}
+				}
+			}
+		}
+		cout << "Проверка: " << sumx << endl;
+		cout << endl;
+		////////////////////////////// Закрытие //////////////////////////////
+		fout.close();
+	}
+	fin.close();
+	system("pause");
+}
